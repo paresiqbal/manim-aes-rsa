@@ -76,3 +76,61 @@ class AESGrid(Scene):
         # Cipher text appears all at once (no sliding)
         self.play(FadeIn(cipher_boxes, run_time=1.2))
         self.wait(2)
+
+     # Cipher text appears all at once (no sliding)
+        self.play(FadeIn(cipher_boxes, run_time=1.2))
+        self.wait(2)
+
+        # --- Replace with S-Box results (correct values) ---
+        sbox_results = [
+            "01","C5","76","30",
+            "67","82","30","A2",
+            "D7","D6","B3","29",
+            "E3","2F","84","53"
+        ]
+
+        anims = []
+        for box, new_val in zip(cipher_boxes, sbox_results):
+            old_text = box[1]  # box = VGroup(square, text)
+            new_text = Text(new_val, font="KH Interference Trial", font_size=28, color=BLACK)
+            new_text.move_to(old_text.get_center())
+            anims.append(Transform(old_text, new_text))
+
+        self.play(*anims, run_time=1.5)
+        self.wait(2)
+
+           # --- Move S-Box result to center ---
+        self.play(cipher_boxes.animate.move_to(ORIGIN), run_time=1.5)
+        self.wait(1)
+
+        # --- ShiftRows animation ---
+        # Current order (row by row in 4x4 grid):
+        # 01 C5 76 30
+        # 67 82 30 A2
+        # D7 D6 B3 29
+        # E3 2F 84 53
+
+        # Shifted order:
+        # 01 C5 76 30       (no change)
+        # 82 30 A2 67       (shift left 1)
+        # B3 29 D7 D6       (shift left 2)
+        # 53 E3 2F 84       (shift left 3)
+
+        # Store the target positions of the grid
+        positions = [box.get_center() for box in cipher_boxes]
+
+        # Rearranged boxes (ShiftRows effect)
+        shifted_order = [
+            cipher_boxes[0], cipher_boxes[1], cipher_boxes[2], cipher_boxes[3],
+            cipher_boxes[5], cipher_boxes[6], cipher_boxes[7], cipher_boxes[4],
+            cipher_boxes[10], cipher_boxes[11], cipher_boxes[8], cipher_boxes[9],
+            cipher_boxes[15], cipher_boxes[12], cipher_boxes[13], cipher_boxes[14],
+        ]
+
+        # Animate each box moving to its new spot
+        self.play(*[
+            box.animate.move_to(pos)
+            for box, pos in zip(shifted_order, positions)
+        ], run_time=1.8)
+
+        self.wait(2)
